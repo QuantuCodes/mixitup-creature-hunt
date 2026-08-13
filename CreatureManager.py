@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import json
+import os
 
 CREATURES_JSON = "Creatures.JSON"
 
@@ -13,6 +14,7 @@ class CreatureManager(tk.Tk):
 
         self.data = {}
 
+        self.loadData()
         self.buildUI()
 
     def buildUI(self):
@@ -40,6 +42,15 @@ class CreatureManager(tk.Tk):
             font=("Arial", 20)
         )
         testMsg.pack(expand=True)
+
+    def loadData(self):
+        if os.path.exists(CREATURES_JSON):
+            with open(CREATURES_JSON, "r", encoding="utf-8") as file:
+                self.data = json.load(file)
+                print("Data loaded") #for debug
+        else:
+            self.data = {}
+            print("JSON not found.") #for debug purposes
 
 app = CreatureManager()
 app.mainloop()
