@@ -41,6 +41,23 @@ class CreatureManager(tk.Tk):
         self.leftPanel.pack(side="left", fill="y")
         self.leftPanel.pack_propagate(False) #i.e. fixed width
 
+        listLabel = ttk.Label(self.leftPanel, text="Creatures")
+        listLabel.pack(anchor="w")
+
+        listFrame = ttk.Frame(self.leftPanel)
+        listFrame.pack(fill="both", expand=True)
+
+        self.creatureListbox = tk.Listbox(listFrame, exportselection=False)
+        self.creatureListbox.pack(side="left", fill="both", expand=True)
+        self.creatureListbox.bind("<<ListboxSelect>>", self.onSelect)
+
+        scrollbar = ttk.Scrollbar(listFrame, orient="vertical", command=self.creatureListbox.yview)
+        scrollbar.pack(side="left", fill="y")
+        self.creatureListbox.config(yscrollcommand=scrollbar.set)
+
+        for name in sorted(self.data.keys()):
+            self.creatureListbox.insert(tk.END, name)
+
         self.rightPanel = ttk.Frame(content, padding=(20, 0, 0, 0), relief="solid", borderwidth=2)
         self.rightPanel.pack(side="left", fill="both", expand=True)
 
@@ -50,6 +67,9 @@ class CreatureManager(tk.Tk):
                 self.data = json.load(file)
         else:
             self.data = {}
+
+    def onSelect(self, event=None):
+        pass
 
 app = CreatureManager()
 app.mainloop()
