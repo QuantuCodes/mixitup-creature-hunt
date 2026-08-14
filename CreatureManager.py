@@ -69,12 +69,16 @@ class CreatureManager(tk.Tk):
         ttk.Label(self.rightPanel, text="Message:").pack(anchor="w")
         self.messageText = tk.Text(self.rightPanel, height=4, wrap="word")
         self.messageText.pack(fill="x", pady=(0, 12))
+        self.messageText.bind("<KeyRelease>", self.checkForChanges)
 
         ttk.Label(self.rightPanel, text="ShinyMessage:").pack(anchor="w")
         self.shinyText = tk.Text(self.rightPanel, height=4, wrap="word")
         self.shinyText.pack(fill="x", pady=(0, 12))
+        self.shinyText.bind("<KeyRelease>", self.checkForChanges)
 
         self.selectedName = None
+
+        self.saveButton = ttk.Button(self.rightPanel, text="Save Changes", command=self.saveChanges)
 
     def loadData(self):
         if os.path.exists(CREATURES_JSON):
@@ -99,6 +103,46 @@ class CreatureManager(tk.Tk):
 
         self.shinyText.delete("1.0", tk.END)
         self.shinyText.insert("1.0", entry.get("shinyMessage", ""))
+
+        #store original entries for change detection/s
+        self.originalMessage = entry.get("message","")
+        self.originalShinyMessage = entry.get("shinyMessage", "")
+
+    def checkForChanges(self, event=None):
+        if self.selectedName is None:
+            return
+
+        currentMessage = self.messageText.get("1.0", "end-1c")
+        currentShinyMessage = self.shinyText.get("1.0", "end-1c")
+
+        changed = (currentMessage != self.originalMessage) or (currentShinyMessage != self.originalShinyMessage)
+        if changed:
+            self.saveButton.pack(anchor="e", pady=(6, 0))
+        else:
+            self.saveButton.pack_forget()
+
+    def saveChanges(self):
+        if self.selectedName is None:
+            return
+
+        currentMessage = self.messageText.get("1.0", "end-1c")
+        currentShinyMessage = self.shinyText.get("1.0", "end-1c")
+
+        entry = {}
+        if currentMessage:
+            entry["message"] = currentMessage
+        if currentShinyMessage:
+            entry["shinyMessage"] = currentShinyMessage
+        self.data[self.selectedName] = entry
+
+        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
+            json.dump(self.data, file, indent=4, ensure_ascii=False)
+
+        #update such that save button disappears post-save
+        self.originalMessage = currentMessage
+        self.originalShinyMessage = currentShinyMessage
+        self.saveButton.pack_forget()
+
 
 app = CreatureManager()
 app.mainloop()
