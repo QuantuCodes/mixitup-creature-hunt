@@ -86,6 +86,15 @@ class CreatureManager(tk.Tk):
 
         self.saveButton = ttk.Button(self.rightPanel, text="Save Changes", command=self.saveChanges)
 
+        self.deleteButton = tk.Button(
+            self.rightPanel,
+            text="Delete Creature",
+            bg="#c93631",
+            fg="white",
+            command=self.onDeleteCreature
+        )
+        self.deleteButton.pack(side="bottom", anchor="w", pady=(12,0))
+
     def loadData(self):
         if os.path.exists(CREATURES_JSON):
             with open(CREATURES_JSON, "r", encoding="utf-8") as file:
@@ -176,6 +185,76 @@ class CreatureManager(tk.Tk):
         self.creatureListbox.see(newIndex) #may be off screen, so scroll to
         self.onSelect() #data to RHS
 
+    def onDeleteCreature(self):
+        if self.selectedName is None:
+            return
+        self.openDeleteConfirmation(self.selectedName)
+
+    def openDeleteConfirmation(self, name):
+        confirmWindow = tk.Toplevel(self)
+        confirmWindow.title("Confirm Delete")
+        confirmWindow.geometry("320x140")
+        confirmWindow.resizable(False, False)
+        confirmWindow.grab_set() #user cannot interact w/main window until current is resolved
+
+        messageLabel = ttk.Label(
+            confirmWindow,
+            text=f"Are you sure you want to delete {name}?",
+            wraplength=280,
+            justify="center"
+        )
+        messageLabel.pack(pady=(20,10))
+
+        buttonRow = ttk.Frame(confirmWindow)
+        buttonRow.pack()
+
+        yesButton = ttk.Button(
+            buttonRow, text="Yes",
+            command=lambda: self.confirmDelete(name, confirmWindow, messageLabel, buttonRow)
+        )
+        yesButton.pack(side="left", padx=8)
+
+        noButton = ttk.Button(buttonRow, text="No", command=confirmWindow.destroy)
+        noButton.pack(side="left", padx=8)
+
+    def confirmDelete(self, name, window, messageLabel, buttonRow):
+        if name in self.data:
+            del self.data[name]
+
+        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
+            json.dump(self.data, file, indent=4, ensure_ascii=False)
+
+        #refresh listbox as entry deleted
+        self.creatureListbox.delete(0, tk.END)
+        for creatureName in sorted(self.data.keys()):
+            self.creatureListbox.insert(tk.END, creatureName)
+
+        #clear RHS; selected creature no longer exists
+        self.selectedName = None
+        self.nameHeader.config(text="Select a creature")
+        self.messageText.delete("1.0", tk.END)
+        self.shinyText.delete("1.0", tk.END)
+        self.saveButton.pack_forget()
+
+        #remove Y/N buttons + countdown to confirmation window closing
+        buttonRow.destroy()
+        messageLabel.config(text=f"{name} has been deleted")
+
+        countdownLabel = ttk.Label(window, text="")
+        countdownLabel.pack(pady=(0,10))
+
+        self.runDeletionCountdown(window, countdownLabel, 5)
+
+    def runDeletionCountdown(self, window, label, secondsLeft):
+        if not window.winfo_exists():
+            return
+
+        if secondsLeft <= 0:
+            window.destroy()
+            return
+
+        label.config(text=f"Window will close in {secondsLeft} seconds")
+        window.after(1000, lambda: self.runDeletionCountdown(window, label, secondsLeft-1))
 
 app = CreatureManager()
 app.mainloop()
