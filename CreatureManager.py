@@ -37,6 +37,7 @@ class CreatureManager(tk.Tk):
         content = ttk.Frame(main)
         content.pack(fill="both", expand=True)
 
+        #LHS; JSON entry listbox + scrollbar
         self.leftPanel = ttk.Frame(content, width=320, relief="solid", borderwidth=2)
         self.leftPanel.pack(side="left", fill="y")
         self.leftPanel.pack_propagate(False) #i.e. fixed width
@@ -58,8 +59,22 @@ class CreatureManager(tk.Tk):
         for name in sorted(self.data.keys()):
             self.creatureListbox.insert(tk.END, name)
 
+        #RHS; JSON entry editor
         self.rightPanel = ttk.Frame(content, padding=(20, 0, 0, 0), relief="solid", borderwidth=2)
         self.rightPanel.pack(side="left", fill="both", expand=True)
+
+        self.nameHeader = ttk.Label(self.rightPanel, text="Select a creature",  font=("Arial", 16, "bold"))
+        self.nameHeader.pack(anchor="w", pady=(0, 12))
+
+        ttk.Label(self.rightPanel, text="Message:").pack(anchor="w")
+        self.messageText = tk.Text(self.rightPanel, height=4, wrap="word")
+        self.messageText.pack(fill="x", pady=(0, 12))
+
+        ttk.Label(self.rightPanel, text="ShinyMessage:").pack(anchor="w")
+        self.shinyText = tk.Text(self.rightPanel, height=4, wrap="word")
+        self.shinyText.pack(fill="x", pady=(0, 12))
+
+        self.selectedName = None
 
     def loadData(self):
         if os.path.exists(CREATURES_JSON):
@@ -69,7 +84,21 @@ class CreatureManager(tk.Tk):
             self.data = {}
 
     def onSelect(self, event=None):
-        pass
+        selection = self.creatureListbox.curselection()
+        if not selection:
+            return
+
+        name = self.creatureListbox.get(selection[0])
+        entry = self.data.get(name, {})
+
+        self.selectedName = name
+        self.nameHeader.config(text=name)
+
+        self.messageText.delete("1.0", tk.END)
+        self.messageText.insert("1.0", entry.get("message", ""))
+
+        self.shinyText.delete("1.0", tk.END)
+        self.shinyText.insert("1.0", entry.get("shinyMessage", ""))
 
 app = CreatureManager()
 app.mainloop()
