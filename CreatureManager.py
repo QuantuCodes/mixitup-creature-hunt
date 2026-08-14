@@ -42,8 +42,14 @@ class CreatureManager(tk.Tk):
         self.leftPanel.pack(side="left", fill="y")
         self.leftPanel.pack_propagate(False) #i.e. fixed width
 
-        listLabel = ttk.Label(self.leftPanel, text="Creatures")
-        listLabel.pack(anchor="w")
+        headerRow = ttk.Frame(self.leftPanel)
+        headerRow.pack(fill="x")
+
+        listLabel = ttk.Label(headerRow, text="Creatures")
+        listLabel.pack(side="left", anchor="w")
+
+        self.addButton = ttk.Button(headerRow, text="+", width=3, command=self.onAddCreature)
+        self.addButton.pack(side="right")
 
         listFrame = ttk.Frame(self.leftPanel)
         listFrame.pack(fill="both", expand=True)
@@ -142,6 +148,9 @@ class CreatureManager(tk.Tk):
         self.originalMessage = currentMessage
         self.originalShinyMessage = currentShinyMessage
         self.saveButton.pack_forget()
+
+    def onAddCreature(self):
+        pass
 
 
 app = CreatureManager()
