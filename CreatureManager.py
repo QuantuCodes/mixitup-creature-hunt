@@ -150,7 +150,31 @@ class CreatureManager(tk.Tk):
         self.saveButton.pack_forget()
 
     def onAddCreature(self):
-        pass
+        defaultName = "new_creature"
+        name = defaultName
+
+        i = 1
+        while name in self.data:
+            name = f"{defaultName}{i}"
+            i += 1
+
+        #write entry data
+        self.data[name] = {}
+        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
+            json.dump(self.data, file, indent=4, ensure_ascii=False)
+
+        #refresh listbox; sort entries on LHS
+        self.creatureListbox.delete(0, tk.END)
+        for creatureName in sorted(self.data.keys()):
+            self.creatureListbox.insert(tk.END, creatureName)
+
+        #autoselect newly added entry (for convinience)
+        sortedNames = sorted(self.data.keys())
+        newIndex = sortedNames.index(name)
+        self.creatureListbox.selection_clear(0, tk.END)
+        self.creatureListbox.selection_set(newIndex)
+        self.creatureListbox.see(newIndex) #may be off screen, so scroll to
+        self.onSelect() #data to RHS
 
 
 app = CreatureManager()
