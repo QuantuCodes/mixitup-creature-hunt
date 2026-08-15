@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import json
 import os
+import re
 
 CREATURES_JSON = "Creatures.JSON"
 
@@ -268,7 +269,75 @@ class CreatureManager(tk.Tk):
         self.openRenameWindow(self.selectedName)
 
     def openRenameWindow(self, oldName):
-        print("RenameWindowHere")
+        renameWindow = tk.Toplevel(self)
+        renameWindow.title("Rename Creature")
+        renameWindow.geometry("320x160")
+        renameWindow.resizable(False, False)
+        renameWindow.grab_set()
+
+        ttk.Label(renameWindow, text=f"Rename '{oldName}' to:").pack(pady=(20,6))
+
+        nameVar = tk.StringVar(value=oldName)
+        nameEntry = ttk.Entry(renameWindow, textvariable=nameVar)
+        nameEntry.pack(pady=(0,6))
+        nameEntry.select_range(0, tk.END)
+        nameEntry.focus_set()
+
+        errorLabel = ttk.Label(renameWindow, text="", foreground="red")
+        errorLabel.pack()
+
+        buttonRow = ttk.Frame(renameWindow)
+        buttonRow.pack(pady=(10,0))
+
+        confirmButton=ttk.Button(
+            buttonRow, text="Rename",
+            command=lambda: self.renameCreature(oldName, nameVar.get(), errorLabel, renameWindow)
+        )
+        confirmButton.pack(side="left", padx=8)
+
+        cancelButton = ttk.Button(buttonRow, text="Cancel", command=renameWindow.destroy)
+        cancelButton.pack(side="left", padx=8)
+
+    def renameCreature(self, oldName, newName, errorLabel, window):
+        newName = newName.strip()
+
+        #validation; guard cases
+        if newName == "":
+            errorLabel.config(text="Name cannot be empty")
+            return
+
+        if not re.match(r"^[A-Za-z0-9_-]+$", newName):
+            errorLabel.config(text="Only letters, numbers, _, and - are allowed")
+            return
+
+        if newName != oldName and newName in self.data:
+            errorLabel.config(text=f"'{newName}' already exists")
+            return
+
+        if newName == oldName:
+            window.destroy() #no change...so just...close it.
+            return
+
+        #rename procedure
+        self.data[newName] = self.data.pop(oldName) #isolate content from key
+
+        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
+            json.dump(self.data, file, indent=4, ensure_ascii=False)
+
+        #listbox refresh + reselect creature, note under new name
+        self.creatureListbox.delete(0, tk.END)
+        for creatureName in sorted(self.data.keys()):
+            self.creatureListbox.insert(tk.END, creatureName)
+
+        sortedNames = sorted(self.data.keys())
+        newIndex = sortedNames.index(newName)
+        self.creatureListbox.selection_clear(0, tk.END)
+        self.creatureListbox.selection_set(newIndex)
+        self.creatureListbox.see(newIndex)
+        self.selectedName = newName
+        self.onSelect()
+
+        window.destroy()
 
 app = CreatureManager()
 app.mainloop()
