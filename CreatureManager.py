@@ -135,8 +135,9 @@ class CreatureManager(tk.Tk):
 
         newName = self.creatureListbox.get(selection[0])
 
-        if (self.selectedName is not None) and (newName != self.selectedName) and self.hasUnsavedChanges():
-            self.openDiscardConfirmation(newName)
+        if (self.selectedName is not None) and self.hasUnsavedChanges():
+            if newName != self.selectedName:
+                self.openDiscardConfirmation(newName)
             return
 
         self.loadCreatureIntoUI(newName)
