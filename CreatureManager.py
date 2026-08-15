@@ -109,12 +109,8 @@ class CreatureManager(tk.Tk):
         else:
             self.data = {}
 
-    def onSelect(self, event=None):
-        selection = self.creatureListbox.curselection()
-        if not selection:
-            return
-
-        name = self.creatureListbox.get(selection[0])
+    #iffy name - may change later on icl...
+    def loadCreatureIntoUI(self, name):
         entry = self.data.get(name, {})
 
         self.selectedName = name
@@ -129,6 +125,67 @@ class CreatureManager(tk.Tk):
         #store original entries for change detection/s
         self.originalMessage = entry.get("message","")
         self.originalShinyMessage = entry.get("shinyMessage", "")
+
+        self.saveButton.pack_forget()
+
+    def onSelect(self, event=None):
+        selection = self.creatureListbox.curselection()
+        if not selection:
+            return
+
+        newName = self.creatureListbox.get(selection[0])
+
+        if (self.selectedName is not None) and (newName != self.selectedName) and self.hasUnsavedChanges():
+            self.openDiscardConfirmation(newName)
+            return
+
+        self.loadCreatureIntoUI(newName)
+
+    def openDiscardConfirmation(self, newName):
+        oldName = self.selectedName
+
+        confirmWindow = tk.Toplevel(self)
+        confirmWindow.title("Unsaved Changes")
+        confirmWindow.geometry("340x150")
+        confirmWindow.resizable(False, False)
+        confirmWindow.grab_set()
+
+        messageLabel = ttk.Label(
+            confirmWindow,
+            text=f"You have unsaved changes to '{oldName}'.\nDiscard them and switch view to '{newName}'?",
+            wraplength=300,
+            justify="center"
+        )
+        messageLabel.pack(pady=(20,10))
+
+        buttonRow = ttk.Frame(confirmWindow)
+        buttonRow.pack()
+
+        discardButton = ttk.Button(
+            buttonRow, text="Discard Changes",
+            command=lambda: self.discardChangesSwitch(newName, confirmWindow)
+        )
+        discardButton.pack(side="left", padx=8)
+
+        cancelButton = ttk.Button(
+            buttonRow, text="Cancel",
+            command=lambda: self.cancelSwitch(oldName, confirmWindow)
+        )
+        cancelButton.pack(side="left", padx=8)
+
+    def discardChangesSwitch(self, newName, window):
+        window.destroy()
+        self.loadCreatureIntoUI(newName)
+
+    def cancelSwitch(self, oldName, window):
+        window.destroy()
+
+        sortedNames = sorted(self.data.keys())
+        oldIndex = sortedNames.index(oldName)
+        self.creatureListbox.selection_clear(0, tk.END)
+        self.creatureListbox.selection_set(oldIndex)
+        self.creatureListbox.see(oldIndex)
+
 
     def checkForChanges(self, event=None):
         if self.selectedName is None:
@@ -338,6 +395,15 @@ class CreatureManager(tk.Tk):
         self.onSelect()
 
         window.destroy()
+
+    def hasUnsavedChanges(self):
+        if self.selectedName is None:
+            return False
+
+        currentMessage = self.messageText.get("1.0", "end-1c")
+        currentShinyMessage = self.shinyText.get("1.0", "end-1c")
+
+        return (currentMessage != self.originalMessage) or (currentShinyMessage != self.originalShinyMessage)
 
 app = CreatureManager()
 app.mainloop()
