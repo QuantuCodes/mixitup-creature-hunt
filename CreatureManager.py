@@ -42,13 +42,13 @@ class CreatureManager(tk.Tk):
         self.leftPanel.pack(side="left", fill="y")
         self.leftPanel.pack_propagate(False) #i.e. fixed width
 
-        headerRow = ttk.Frame(self.leftPanel)
-        headerRow.pack(fill="x")
+        headerRowLeft = ttk.Frame(self.leftPanel)
+        headerRowLeft.pack(fill="x")
 
-        listLabel = ttk.Label(headerRow, text="Creatures")
+        listLabel = ttk.Label(headerRowLeft, text="Creatures")
         listLabel.pack(side="left", anchor="w")
 
-        self.addButton = ttk.Button(headerRow, text="+", width=3, command=self.onAddCreature)
+        self.addButton = ttk.Button(headerRowLeft, text="+", width=3, command=self.onAddCreature)
         self.addButton.pack(side="right")
 
         listFrame = ttk.Frame(self.leftPanel)
@@ -69,8 +69,14 @@ class CreatureManager(tk.Tk):
         self.rightPanel = ttk.Frame(content, padding=(20, 0, 0, 0), relief="solid", borderwidth=2)
         self.rightPanel.pack(side="left", fill="both", expand=True)
 
-        self.nameHeader = ttk.Label(self.rightPanel, text="Select a creature",  font=("Arial", 16, "bold"))
+        headerRowRight = ttk.Frame(self.rightPanel)
+        headerRowRight.pack(fill="x", pady=(0,12)) 
+
+        self.nameHeader = ttk.Label(headerRowRight, text="Select a creature",  font=("Arial", 16, "bold"))
         self.nameHeader.pack(anchor="w", pady=(0, 12))
+
+        self.renameButton = ttk.Button(headerRowRight, text="Rename", command=self.onRenameCreature)
+        self.renameButton.pack(side="right")
 
         ttk.Label(self.rightPanel, text="Message:").pack(anchor="w")
         self.messageText = tk.Text(self.rightPanel, height=4, wrap="word")
@@ -255,6 +261,14 @@ class CreatureManager(tk.Tk):
 
         label.config(text=f"Window will close in {secondsLeft} seconds")
         window.after(1000, lambda: self.runDeletionCountdown(window, label, secondsLeft-1))
+
+    def onRenameCreature(self):
+        if self.selectedName is None:
+            return
+        self.openRenameWindow(self.selectedName)
+
+    def openRenameWindow(self, oldName):
+        print("RenameWindowHere")
 
 app = CreatureManager()
 app.mainloop()
