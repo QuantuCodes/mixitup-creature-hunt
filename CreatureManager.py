@@ -183,11 +183,7 @@ class CreatureManager(tk.Tk):
     def cancelSwitch(self, oldName, window):
         window.destroy()
 
-        sortedNames = sorted(self.data.keys())
-        oldIndex = sortedNames.index(oldName)
-        self.creatureListbox.selection_clear(0, tk.END)
-        self.creatureListbox.selection_set(oldIndex)
-        self.creatureListbox.see(oldIndex)
+        self.selectInListbox(oldName)
 
 
     def checkForChanges(self, event=None):
@@ -217,8 +213,7 @@ class CreatureManager(tk.Tk):
             entry["shinyMessage"] = currentShinyMessage
         self.data[self.selectedName] = entry
 
-        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
-            json.dump(self.data, file, indent=4, ensure_ascii=False)
+        self.writeToJson()
 
         #update such that save button disappears post-save
         self.originalMessage = currentMessage
@@ -236,20 +231,13 @@ class CreatureManager(tk.Tk):
 
         #write entry data
         self.data[name] = {}
-        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
-            json.dump(self.data, file, indent=4, ensure_ascii=False)
+        self.writeToJson()
 
         #refresh listbox; sort entries on LHS
-        self.creatureListbox.delete(0, tk.END)
-        for creatureName in sorted(self.data.keys()):
-            self.creatureListbox.insert(tk.END, creatureName)
+        self.refreshListbox()
 
         #autoselect newly added entry (for convinience)
-        sortedNames = sorted(self.data.keys())
-        newIndex = sortedNames.index(name)
-        self.creatureListbox.selection_clear(0, tk.END)
-        self.creatureListbox.selection_set(newIndex)
-        self.creatureListbox.see(newIndex) #may be off screen, so scroll to
+        self.selectInListbox(name)
         self.onSelect() #data to RHS
 
     def onDeleteCreature(self):
@@ -288,13 +276,10 @@ class CreatureManager(tk.Tk):
         if name in self.data:
             del self.data[name]
 
-        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
-            json.dump(self.data, file, indent=4, ensure_ascii=False)
+        self.writeToJson()
 
         #refresh listbox as entry deleted
-        self.creatureListbox.delete(0, tk.END)
-        for creatureName in sorted(self.data.keys()):
-            self.creatureListbox.insert(tk.END, creatureName)
+        self.refreshListbox()
 
         #clear RHS; selected creature no longer exists
         self.selectedName = None
@@ -381,19 +366,12 @@ class CreatureManager(tk.Tk):
         #rename procedure
         self.data[newName] = self.data.pop(oldName) #isolate content from key
 
-        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
-            json.dump(self.data, file, indent=4, ensure_ascii=False)
+        self.writeToJson()
 
         #listbox refresh + reselect creature, note under new name
-        self.creatureListbox.delete(0, tk.END)
-        for creatureName in sorted(self.data.keys()):
-            self.creatureListbox.insert(tk.END, creatureName)
-
-        sortedNames = sorted(self.data.keys())
-        newIndex = sortedNames.index(newName)
-        self.creatureListbox.selection_clear(0, tk.END)
-        self.creatureListbox.selection_set(newIndex)
-        self.creatureListbox.see(newIndex)
+        self.refreshListbox()
+        self.selectInListbox(newName)
+        
         self.selectedName = newName
         self.onSelect()
 
@@ -444,6 +422,22 @@ class CreatureManager(tk.Tk):
 
     def confirmQuit(self):
         self.destroy()
+
+    def writeToJson(self):
+        with open(CREATURES_JSON, "w", encoding="utf-8") as file:
+            json.dump(self.data, file, indent=4, ensure_ascii=False)
+
+    def refreshListbox(self):
+        self.creatureListbox.delete(0, tk.END)
+        for creatureName in sorted(self.data.keys()):
+            self.creatureListbox.insert(tk.END, creatureName)
+
+    def selectInListbox(self, name):
+        sortedNames = sorted(self.data.keys())
+        index = sortedNames.index(name)
+        self.creatureListbox.selection_clear(0, tk.END)
+        self.creatureListbox.selection_set(index)
+        self.creatureListbox.see(index)
             
 app = CreatureManager()
 app.mainloop()
