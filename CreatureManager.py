@@ -18,6 +18,8 @@ class CreatureManager(tk.Tk):
         self.loadData()
         self.buildUI()
 
+        self.protocol("WM_DELETE_WINDOW", self.onCloseApp)
+
     def buildUI(self):
         main = ttk.Frame(self, padding=16)
         main.pack(fill="both", expand=True)
@@ -406,6 +408,43 @@ class CreatureManager(tk.Tk):
 
         return (currentMessage != self.originalMessage) or (currentShinyMessage != self.originalShinyMessage)
 
+    def onCloseApp(self):
+        if (self.selectedName is not None) and self.hasUnsavedChanges():
+            self.openQuitConfirmation()
+            return
+
+        self.destroy()
+
+    def openQuitConfirmation(self):
+        confirmWindow = tk.Toplevel(self)
+        confirmWindow.title("Unsaved Changes")
+        confirmWindow.geometry("340x150")
+        confirmWindow.resizable(False, False)
+        confirmWindow.grab_set()
+
+        messageLabel = ttk.Label(
+            confirmWindow,
+            text=f"You have unsaved changes to '{self.selectedName}'.\nQuit anyways?",
+            wraplength=300,
+            justify="center"
+        )
+        messageLabel.pack(pady=(20,10))
+
+        buttonRow = ttk.Frame(confirmWindow)
+        buttonRow.pack()
+
+        quitButton = ttk.Button(
+            buttonRow, text="Quit",
+            command=self.confirmQuit
+        )
+        quitButton.pack(side="left", padx=8)
+
+        cancelButton=ttk.Button(buttonRow, text="Cancel", command=confirmWindow.destroy)
+        cancelButton.pack(side="left", padx=8)
+
+    def confirmQuit(self):
+        self.destroy()
+            
 app = CreatureManager()
 app.mainloop()
 
