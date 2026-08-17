@@ -1,13 +1,1 @@
-{
-    "wooper": {
-        "message": "Regular Wooper",
-        "shinyMessage": "SHINY WOOPER"
-    },
-    "test2": {
-        "shinyMessage": "Test 2 Output"
-    },
-    "test3": {},
-    "test1": {
-        "message": "Test 1 Output"
-    }
-}
+{}

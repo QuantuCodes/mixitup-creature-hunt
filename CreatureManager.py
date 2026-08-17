@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import json
 import os
 import re
@@ -17,6 +17,9 @@ class CreatureManager(tk.Tk):
 
         self.loadData()
         self.buildUI()
+
+        if self.loadError:
+            self.after(100, self.showLoadError)
 
         self.protocol("WM_DELETE_WINDOW", self.onCloseApp)
 
@@ -105,11 +108,25 @@ class CreatureManager(tk.Tk):
         self.deleteButton.pack(side="bottom", anchor="w", pady=(12,0))
 
     def loadData(self):
-        if os.path.exists(CREATURES_JSON):
+        self.loadError = None   #store potential error so GUI can be built first; bug prevention
+
+        if not os.path.exists(CREATURES_JSON):
+            self.data={}
+            return
+        try:
             with open(CREATURES_JSON, "r", encoding="utf-8") as file:
                 self.data = json.load(file)
-        else:
+        except (json.JSONDecodeError, OSError) as exception:
+            self.loadError = str(exception)
             self.data = {}
+
+    def showLoadError(self):
+        messagebox.showerror(
+            "Failed to load Creatures.JSON",
+            f"The file could not be read:\n{self.loadError}\n\nStarting with an empty creature list."
+        )
+        #safety net
+        self.focus_force()
 
     #iffy name - may change later on icl...
     #pass None as a param to clear right hand side
@@ -362,7 +379,7 @@ class CreatureManager(tk.Tk):
 
     def openQuitConfirmation(self):
         confirmWindow, _, buttonRow = self.buildConfirmWindow(
-            "Unsaved Changes"
+            "Unsaved Changes",
             f"You have unsaved changes to '{self.selectedName}'.\nQuit anyways?"
         )
 
