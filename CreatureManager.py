@@ -117,7 +117,7 @@ class CreatureManager(tk.Tk):
         entry = self.data.get(name, {}) if name is not None else {}
 
         self.selectedName = name
-        self.nameHeader.config(text=name) if name is not None else self.nameHeader.config("Select a creature")
+        self.nameHeader.config(text=name) if name is not None else self.nameHeader.config(text="Select a creature")
 
         self.messageText.delete("1.0", tk.END)
         self.messageText.insert("1.0", entry.get("message", ""))
