@@ -112,11 +112,12 @@ class CreatureManager(tk.Tk):
             self.data = {}
 
     #iffy name - may change later on icl...
+    #pass None as a param to clear right hand side
     def loadCreatureIntoUI(self, name):
-        entry = self.data.get(name, {})
+        entry = self.data.get(name, {}) if name is not None else {}
 
         self.selectedName = name
-        self.nameHeader.config(text=name)
+        self.nameHeader.config(text=name) if name is not None else "Select a creature"
 
         self.messageText.delete("1.0", tk.END)
         self.messageText.insert("1.0", entry.get("message", ""))
@@ -124,11 +125,7 @@ class CreatureManager(tk.Tk):
         self.shinyText.delete("1.0", tk.END)
         self.shinyText.insert("1.0", entry.get("shinyMessage", ""))
 
-        #store original entries for change detection/s
-        self.originalMessage = entry.get("message","")
-        self.originalShinyMessage = entry.get("shinyMessage", "")
-
-        self.saveButton.pack_forget()
+        self.markSaved(entry.get("message", ""), entry.get("shinyMessage",""))
 
     def onSelect(self, event=None):
         selection = self.creatureListbox.curselection()
@@ -204,9 +201,7 @@ class CreatureManager(tk.Tk):
         self.writeToJson()
 
         #update such that save button disappears post-save
-        self.originalMessage = currentMessage
-        self.originalShinyMessage = currentShinyMessage
-        self.saveButton.pack_forget()
+        self.markSaved(currentMessage, currentShinyMessage)
 
     def onAddCreature(self):
         defaultName = "new_creature"
@@ -258,11 +253,7 @@ class CreatureManager(tk.Tk):
         self.refreshListbox()
 
         #clear RHS; selected creature no longer exists
-        self.selectedName = None
-        self.nameHeader.config(text="Select a creature")
-        self.messageText.delete("1.0", tk.END)
-        self.shinyText.delete("1.0", tk.END)
-        self.saveButton.pack_forget()
+        self.loadCreatureIntoUI(None)
 
         #remove Y/N buttons + countdown to confirmation window closing
         buttonRow.destroy()
@@ -417,7 +408,12 @@ class CreatureManager(tk.Tk):
         buttonRow.pack()
 
         return window, messageLabel, buttonRow
-            
+
+    def markSaved(self, message, shiny):
+        self.originalMessage = message
+        self.originalShinyMessage = shiny
+        self.saveButton.pack_forget()
+
 app = CreatureManager()
 app.mainloop()
 
