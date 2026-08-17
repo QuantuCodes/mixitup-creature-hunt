@@ -1,6 +1,12 @@
 import json
 import random
-#import sys potentially
+import sys
+
+#10% chance creature flees
+hasFled = random.random() < (20/100)
+if hasFled:
+    print("Oh. It fled. Sorry.")
+    sys.exit()
 
 #locate + open JSON data file in read
 with open("Creatures.JSON", "r", encoding="utf-8") as file:
