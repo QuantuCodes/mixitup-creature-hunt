@@ -147,22 +147,10 @@ class CreatureManager(tk.Tk):
     def openDiscardConfirmation(self, newName):
         oldName = self.selectedName
 
-        confirmWindow = tk.Toplevel(self)
-        confirmWindow.title("Unsaved Changes")
-        confirmWindow.geometry("340x150")
-        confirmWindow.resizable(False, False)
-        confirmWindow.grab_set()
-
-        messageLabel = ttk.Label(
-            confirmWindow,
-            text=f"You have unsaved changes to '{oldName}'.\nDiscard them and switch view to '{newName}'?",
-            wraplength=300,
-            justify="center"
+        confirmWindow, _, buttonRow = self.buildConfirmWindow(
+            "Unsaved Changes",
+            f"You have unsaved changes to '{oldName}'.\nDiscard them anyways?"
         )
-        messageLabel.pack(pady=(20,10))
-
-        buttonRow = ttk.Frame(confirmWindow)
-        buttonRow.pack()
 
         discardButton = ttk.Button(
             buttonRow, text="Discard Changes",
@@ -246,22 +234,10 @@ class CreatureManager(tk.Tk):
         self.openDeleteConfirmation(self.selectedName)
 
     def openDeleteConfirmation(self, name):
-        confirmWindow = tk.Toplevel(self)
-        confirmWindow.title("Confirm Delete")
-        confirmWindow.geometry("320x140")
-        confirmWindow.resizable(False, False)
-        confirmWindow.grab_set() #user cannot interact w/main window until current is resolved
-
-        messageLabel = ttk.Label(
-            confirmWindow,
-            text=f"Are you sure you want to delete {name}?",
-            wraplength=280,
-            justify="center"
+        confirmWindow, messageLabel, buttonRow = self.buildConfirmWindow(
+            "Confirm Delete",
+            f"Are you sure you want to delete {name}?"
         )
-        messageLabel.pack(pady=(20,10))
-
-        buttonRow = ttk.Frame(confirmWindow)
-        buttonRow.pack()
 
         yesButton = ttk.Button(
             buttonRow, text="Yes",
@@ -394,22 +370,10 @@ class CreatureManager(tk.Tk):
         self.destroy()
 
     def openQuitConfirmation(self):
-        confirmWindow = tk.Toplevel(self)
-        confirmWindow.title("Unsaved Changes")
-        confirmWindow.geometry("340x150")
-        confirmWindow.resizable(False, False)
-        confirmWindow.grab_set()
-
-        messageLabel = ttk.Label(
-            confirmWindow,
-            text=f"You have unsaved changes to '{self.selectedName}'.\nQuit anyways?",
-            wraplength=300,
-            justify="center"
+        confirmWindow, _, buttonRow = self.buildConfirmWindow(
+            "Unsaved Changes"
+            f"You have unsaved changes to '{self.selectedName}'.\nQuit anyways?"
         )
-        messageLabel.pack(pady=(20,10))
-
-        buttonRow = ttk.Frame(confirmWindow)
-        buttonRow.pack()
 
         quitButton = ttk.Button(
             buttonRow, text="Quit",
@@ -438,6 +402,21 @@ class CreatureManager(tk.Tk):
         self.creatureListbox.selection_clear(0, tk.END)
         self.creatureListbox.selection_set(index)
         self.creatureListbox.see(index)
+
+    def buildConfirmWindow(self, title, message, geometry="340x150"):
+        window = tk.Toplevel(self)
+        window.title(title)
+        window.geometry(geometry)
+        window.resizable(False, False)
+        window.grab_set()
+
+        messageLabel = ttk.Label(window, text=message, wraplength=300, justify="center")
+        messageLabel.pack(pady=(20,10))
+
+        buttonRow = ttk.Frame(window)
+        buttonRow.pack()
+
+        return window, messageLabel, buttonRow
             
 app = CreatureManager()
 app.mainloop()
