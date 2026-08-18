@@ -11,7 +11,7 @@ Provided below is a table which describes each file in this repository, and brea
 
 ## Requirements
 - Python 3.8/newer
-- tkinter - included with most python installs by default. If the Manager fails to launch with a `ModuleNotFoudnError: No module named 'tkinter`, then this should be installed separately. Windows/MAC has it bundled with Python, whilst Linux users should `sudo apt install python3-tk`.
+- tkinter - included with most python installs by default. If the Manager fails to launch with a `ModuleNotFoudnError: No module named 'tkinter'`, then this should be installed separately. Windows/MAC has it bundled with Python, whilst Linux users should `sudo apt install python3-tk`.
 - No other 3rd party packages required, as all other libraries are included in Python's standard library. For documentation sake, they are listed as follows: json, random, sys, os, re, (tkinter).
 
 ## First-time Setup
