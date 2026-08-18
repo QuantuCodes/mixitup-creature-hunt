@@ -2,8 +2,10 @@ import json
 import random
 import sys
 
-#10% chance creature flees
-hasFled = random.random() < (20/100)
+
+FLEE_CHANCE = 20/100
+#chance creature flees
+hasFled = random.random() < (FLEE_CHANCE)
 if hasFled:
     print("Oh. It fled. Sorry.")
     sys.exit()
@@ -17,7 +19,7 @@ creatureName = random.choice(list(data.keys()))
 chosen = data[creatureName]
 
 #Special "shiny message" based on conditional probability
-isShiny = random.random() < (1/4096)
+isShiny = random.random() < ((1 - FLEE_CHANCE) * 1/4096)
 
 #output respective message for chosen creature
 if isShiny and ("shinyMessage" in chosen):

@@ -474,7 +474,7 @@ class CreatureManager(tk.Tk):
         try:
             #so, since Tk's default theme can ignore bg color on certain platforms, use clam cos it sees bg. pls change this comment later.
             style.theme_use("clam")
-        except tk.TCLEror:
+        except tk.TclError:
             pass
 
         style.configure("TFrame", background=bg)
