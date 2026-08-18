@@ -1,7 +1,7 @@
 # Creature Hunt & Creature Manager
-##This repository includes a two-part tool for running a "Hunt for Creatures"-style Twitch channel point redeem. Inside are two executable files: CreatureHunt.py, which will be linked to the redeem in MixItUp (further detail provided later), and CreatureManager.py, a friendly GUI to ensure that managing the creature pool is as accessible as possible.
+This repository includes a two-part tool for running a "Hunt for Creatures"-style Twitch channel point redeem. Inside are two executable files: CreatureHunt.py, which will be linked to the redeem in MixItUp (further detail provided later), and CreatureManager.py, a friendly GUI to ensure that managing the creature pool is as accessible as possible.
 
-##Files
+## Files
 Provided below is a table which describes each file in this repository, and breadth on how to use it.
 | File Name | Intended Purpose |
 |-----------|------------------|
