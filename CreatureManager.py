@@ -12,11 +12,13 @@ class CreatureManager(tk.Tk):
         self.title("Creature Manager")
         self.geometry("1280x720")
         self.minsize(512, 288)
+        self.darkMode = False
 
         self.data = {}
 
         self.loadData()
         self.buildUI()
+        self.applyTheme()
 
         if self.loadError:
             self.after(100, self.showLoadError)
@@ -27,18 +29,27 @@ class CreatureManager(tk.Tk):
         main = ttk.Frame(self, padding=16)
         main.pack(fill="both", expand=True)
 
+        topBar = ttk.Frame(main)
+        topBar.pack(fill="x", pady=(0, 20))
+
+        titleColumn = ttk.Frame(topBar)
+        titleColumn.pack(side="left", anchor="w")
+
         title = ttk.Label(
-            main,
+            titleColumn,
             text="Creature Manager",
             font=("Arial", 24, "bold")
         )
         title.pack(anchor="w")
 
         subtitle = ttk.Label(
-            main,
+            titleColumn,
             text="Manage Creatures for Stream Redeem"
         )
         subtitle.pack(anchor="w", pady=(0, 20))
+
+        self.settingsButton = ttk.Button(topBar, text="\u2699", width=3, command=self.openSettingsMenu)
+        self.settingsButton.pack(side="right", anchor="ne")
 
         content = ttk.Frame(main)
         content.pack(fill="both", expand=True)
@@ -304,6 +315,8 @@ class CreatureManager(tk.Tk):
         renameWindow.resizable(False, False)
         renameWindow.grab_set()
 
+        renameWindow.configure(background=self.currentBg)
+
         ttk.Label(renameWindow, text=f"Rename '{oldName}' to:").pack(pady=(20,6))
 
         nameVar = tk.StringVar(value=oldName)
@@ -418,6 +431,8 @@ class CreatureManager(tk.Tk):
         window.resizable(False, False)
         window.grab_set()
 
+        window.configure(background=self.currentBg)
+
         messageLabel = ttk.Label(window, text=message, wraplength=300, justify="center")
         messageLabel.pack(pady=(20,10))
 
@@ -430,6 +445,51 @@ class CreatureManager(tk.Tk):
         self.originalMessage = message
         self.originalShinyMessage = shiny
         self.saveButton.pack_forget()
+
+    def openSettingsMenu(self):
+        menu = tk.Menu(self, tearoff=0)
+
+        darkModeLabel = "Enable Light Mode" if self.darkMode else "Enable Dark Mode"
+        menu.add_command(label=darkModeLabel, command=self.toggleDarkMode)
+        menu.add_separator()
+        menu.add_command(label="Reload data from JSON", command=self.onReloadJSON)
+
+        x = self.settingsButton.winfo_rootx()
+        y = self.settingsButton.winfo_rooty() + self.settingsButton.winfo_height()
+        menu.tk_popup(x,y)
+
+    def toggleDarkMode(self):
+        self.darkMode = not self.darkMode
+        self.applyTheme()
+
+    def applyTheme(self):
+        if self.darkMode:
+            bg, fg, fieldBg = "#252525", "#f0f0f0", "#383b3d"
+        else:
+            bg, fg, fieldBg = "#f0f0f0", "#000000", "#ffffff"
+
+        self.currentBg = bg #use for popup windows
+
+        style = ttk.Style(self)
+        try:
+            #so, since Tk's default theme can ignore bg color on certain platforms, use clam cos it sees bg. pls change this comment later.
+            style.theme_use("clam")
+        except tk.TCLEror:
+            pass
+
+        style.configure("TFrame", background=bg)
+        style.configure("TLabel", background=bg, foreground=fg)
+        style.configure("TButton", background=fieldBg, foreground=fg)
+        style.configure("TEntry", fieldbackground=fieldBg, foreground=fg)
+
+        self.configure(background=bg)
+
+        self.messageText.configure(background=fieldBg, foreground=fg, insertbackground=fg)
+        self.shinyText.configure(background=fieldBg, foreground=fg, insertbackground=fg)
+        self.creatureListbox.configure(background=fieldBg, foreground=fg)
+
+    def onReloadJSON(self):
+        pass
 
 app = CreatureManager()
 app.mainloop()

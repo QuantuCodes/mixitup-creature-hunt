@@ -1,1 +1,7 @@
-{}
+{
+    "Wooper": {
+        "message": "Regular Wooper",
+        "shinyMessage": "SHINY WOOPER"
+    },
+    "new_creature": {}
+}
