@@ -489,7 +489,30 @@ class CreatureManager(tk.Tk):
         self.creatureListbox.configure(background=fieldBg, foreground=fg)
 
     def onReloadJSON(self):
-        pass
+        if self.hasUnsavedChanges():
+            self.openReloadConfirmation()
+        else:
+            self.performReload()
+
+    def openReloadConfirmation(self):
+        confirmWindow, _, buttonRow = self.buildConfirmWindow(
+            "Reload from JSON",
+            "You have unsaved changes that will be lost if you reload.\nContinue anyway?"
+        )
+        reloadButton = ttk.Button(buttonRow, text="Reload", command=lambda:self.confirmReload(confirmWindow))
+        reloadButton.pack(side="left", padx=8)
+
+        cancelButton = ttk.Button(buttonRow, text="Cancel", command=confirmWindow.destroy)
+        cancelButton.pack(side="left", padx=8)
+
+    def confirmReload(self, window):
+        window.destroy()
+        self.performReload()
+
+    def performReload(self):
+        self.loadData()
+        self.refreshListbox()
+        self.loadCreatureIntoUI(None)
 
 app = CreatureManager()
 app.mainloop()
